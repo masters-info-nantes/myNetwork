@@ -22,6 +22,7 @@
 
 #define THREAD_PRODUCER 0
 #define THREAD_CONSUMER 1
+#define THREAD_CONSUMER2 2
 
 Queue* waiting;
 //~ pthread_mutex_t waiting_lock;
@@ -32,11 +33,7 @@ int start();
 int readArgs(int argc, char** argv);
 
 int main(int argc, char** argv) {
-	VERBOSE("main","start log");
-	WARNING("main","start warning");
-	ALERT("main","start alert");
-	INFO("main","start info");
-	SUCCESS("main","start success");
+	VERBOSE("main","start");
 
 	readArgs(argc,argv);
 	switch(mode) {
@@ -57,8 +54,8 @@ int main(int argc, char** argv) {
 		}
 		break;
 	}
-	//~ printf("switch mode ok\n");
 	start();
+	VERBOSE("main","end");
 	return 0;
 }
 
@@ -66,8 +63,10 @@ int start() {
 	waiting = makeQueue();
 	pthread_create(&threads[THREAD_PRODUCER],NULL,&producer,NULL);
 	pthread_create(&threads[THREAD_CONSUMER],NULL,&consumer,NULL);
+	pthread_create(&threads[THREAD_CONSUMER2],NULL,&consumer,NULL);
 	pthread_join(threads[THREAD_PRODUCER],NULL);
 	pthread_join(threads[THREAD_CONSUMER],NULL);
+	pthread_join(threads[THREAD_CONSUMER2],NULL);
 	deleteQueue(waiting,true);
 	return 0;
 }
