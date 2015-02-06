@@ -19,12 +19,11 @@ typedef struct hostent hostent;
 typedef struct servent servent;
 
 int* newIntPtr(int i) {
-	//~ int* ptr = (int*)malloc(sizeof(int));
-	//~ if(ptr == NULL)
-		//~ return 0;
-	//~ *ptr = i;
-	//~ return ptr;
-	return 0;
+	int* ptr = (int*)malloc(sizeof(int));
+	if(ptr == NULL)
+		return 0;
+	*ptr = i;
+	return ptr;
 }
 
 void* producer(void* arg) {
@@ -36,7 +35,6 @@ void* producer(void* arg) {
     sockaddr_in adresse_locale; /* structure d'adresse locale*/
 	sockaddr_in adresse_client_courant; /* adresse client courant */
     hostent* ptr_hote; /* les infos recuperees sur la machine hote */
-    //~ servent* ptr_service; /* les infos recuperees sur le service de la machine */
     char machine[TAILLE_MAX_NOM+1]; /* nom de la machine locale */
 	int mallocTry;
 	int* ptrSocket;

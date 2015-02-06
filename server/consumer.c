@@ -11,11 +11,9 @@ void* consumer(void* arg) {
 	VERBOSE("CONSUMER","start");
 	int *client;
 	while(true) {
-		//~ VERBOSE("CONSUMER","new try");
 		client = dequeue(waiting);
 		VERBOSE("CONSUMER","new try %p",client);
 		if(client != NULL) {
-			//~ printf("\tCONSUMER dequeue(%d)\n",*val);
 			INFO("CONSUMER","new client");
 
 			char buffer[BUFFER_SIZE];
@@ -38,7 +36,6 @@ void* consumer(void* arg) {
 			write(*client,buffer,3);
 			close(*client);
 		} else {
-			//~ printf("\tCONSUMER dequeue(NULL)\n");
 			INFO("CONSUMER","no waiting client");
 			sleep(1);
 		}
