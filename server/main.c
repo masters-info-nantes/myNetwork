@@ -1,13 +1,12 @@
+#include "common.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
-
 #include "colorlog.h"
-
 #include "Queue.h"
 
 #include "producer.h"
@@ -20,13 +19,6 @@
 #define MODE_HELP 2
 #define MODE_VERSION 3
 
-#define THREAD_PRODUCER 0
-#define THREAD_CONSUMER 1
-#define THREAD_CONSUMER2 2
-
-Queue* waiting;
-//~ pthread_mutex_t waiting_lock;
-pthread_t threads[2];
 int mode = MODE_NORMAL;
 
 int start();

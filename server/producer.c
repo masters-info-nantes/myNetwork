@@ -1,30 +1,30 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "producer.h"
 #include "colorlog.h"
 #include "Queue.h"
-
-#include <unistd.h>
 #include <linux/types.h> 	/* pour les sockets */
 #include <sys/socket.h>
 #include <netdb.h> 		/* pour hostent, servent */
-#include <string.h> 		/* pour bcopy, ... */
+#include <strings.h> 		/* pour bcopy, ... */
 #define TAILLE_MAX_NOM 256
-#define SOCKET_PORT 5000
-#define SOCKET_WAITING_QUEUE_SIZE 10
+
+#define ARRAYSIZE(x) (sizeof(x)/sizeof(*x))
 
 typedef struct sockaddr sockaddr;
 typedef struct sockaddr_in sockaddr_in;
 typedef struct hostent hostent;
 typedef struct servent servent;
 
-extern Queue* waiting;
-
 int* newIntPtr(int i) {
-	int* ptr = (int*)malloc(sizeof(int));
-	*ptr = i;
-	return ptr;
+	//~ int* ptr = (int*)malloc(sizeof(int));
+	//~ if(ptr == NULL)
+		//~ return 0;
+	//~ *ptr = i;
+	//~ return ptr;
+	return 0;
 }
 
 void* producer(void* arg) {
@@ -32,14 +32,16 @@ void* producer(void* arg) {
 
 	int socket_descriptor; /* descripteur de socket */
 	int nouv_socket_descriptor; /* [nouveau] descripteur de socket */
-	int longueur_adresse_courante; /* longueur d'adresse courante d'un client */
+	uint longueur_adresse_courante; /* longueur d'adresse courante d'un client */
     sockaddr_in adresse_locale; /* structure d'adresse locale*/
 	sockaddr_in adresse_client_courant; /* adresse client courant */
     hostent* ptr_hote; /* les infos recuperees sur la machine hote */
     //~ servent* ptr_service; /* les infos recuperees sur le service de la machine */
     char machine[TAILLE_MAX_NOM+1]; /* nom de la machine locale */
-
-    gethostname(machine,TAILLE_MAX_NOM); /* recuperation du nom de la machine */
+	int mallocTry;
+	int* ptrSocket;
+    //~ gethostname(machine,TAILLE_MAX_NOM); /* recuperation du nom de la machine */
+    gethostbyname(machine); /* recuperation du nom de la machine */
 
 	/* recuperation de la structure d'adresse en utilisant le nom */
     if ((ptr_hote = gethostbyname(machine)) == NULL) {
@@ -61,7 +63,8 @@ void* producer(void* arg) {
 
 	/* creation de la socket */
     if ((socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("erreur : impossible de creer la socket de connexion avec le client.");
+		//~ perror("erreur : impossible de creer la socket de connexion avec le client.");
+		ALERT("PRODUCER","impossible to create socket connexion");
 		exit(1);
     }
 
@@ -85,8 +88,17 @@ void* producer(void* arg) {
 			exit(1);
 		}
 		VERBOSE("PRODUCER","put to waiting queue client");
-		enqueue(waiting,newIntPtr(nouv_socket_descriptor));
-
+		mallocTry = 0;
+		do {
+			ptrSocket = newIntPtr(nouv_socket_descriptor);
+			if(mallocTry >= MAX_MALLOC_TRY) {
+				ALERT("PRODUCER","dynamic allocation problem");
+				exit(1);
+			} else {
+				mallocTry++;
+			}
+		} while(mallocTry != 0);
+		enqueue(waiting,ptrSocket);
 	}
 	VERBOSE("PRODUCER","end");
 	return NULL;

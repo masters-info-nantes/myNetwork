@@ -1,3 +1,4 @@
+#include "common.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -5,10 +6,6 @@
 #include "consumer.h"
 #include "colorlog.h"
 #include "Queue.h"
-
-#define BUFFER_SIZE 256
-
-extern Queue* waiting;
 
 void* consumer(void* arg) {
 	VERBOSE("CONSUMER","start");
@@ -22,6 +19,8 @@ void* consumer(void* arg) {
 			INFO("CONSUMER","new client");
 
 			char buffer[BUFFER_SIZE];
+			//~ char** request;
+			//~ int** requestSize;
 			int longueur = 0;
 			while(longueur <= BUFFER_SIZE) {
 				if ((longueur = read(*client, buffer, sizeof(buffer))) <= 0) {
@@ -47,3 +46,7 @@ void* consumer(void* arg) {
 	VERBOSE("CONSUMER","end");
 	return NULL;
 }
+
+//~ char** processRequest(char** request, int** requestSize) {
+	//~ return;
+//~ }

@@ -5,7 +5,7 @@ SOURCES=$(shell ls *.c)
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=myNetwork
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(HEADERS) $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS)
