@@ -12,13 +12,13 @@
 class BacktrackingNonRec : public Solveur{
 
 public:
-	BacktrackingNonRec(int x, std::vector<Constraint*> contraintes);
-	BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes);
+	BacktrackingNonRec(std::string chaine, std::vector<Constraint*> contraintes);
 	//resoud le probleme et retourne le nombre de solutions
 	int solve();
 	//cre le sous-noeud d'un noeud
 	void branch(Noeud noeud);
-	std::list<Noeud> parser(string chaine);
+	void parser(std::string chaine);
+	std::string toString();
 
 private:
 	std::list<Noeud> noeuds;

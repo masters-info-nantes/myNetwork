@@ -2,14 +2,17 @@
 
 using namespace std;
 
-BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraintes):problem(x,contraintes){
-	if(x > 0){
-		noeuds.push_front(problem.initialNode());
-	}
+BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(contraintes){
+	parser(chaine);
 }
 
-BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(x,contraintes){
-	noeuds = parser(chaine);
+void BacktrackingNonRec::parser(std::string chaine){
+
+}
+
+string BacktrackingNonRec::toString(){
+
+
 }
 
 int BacktrackingNonRec::solve(){

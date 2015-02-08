@@ -12,12 +12,10 @@ class Problem{
 
 public:
 	Problem();
-	Problem(int x, std::vector<Constraint*> cst);
-	Noeud initialNode();
+	Problem(std::vector<Constraint*> cst);
 	Proof testSat(Noeud node);
 
 private:
-	int n;
 	//en c++ les class abstraites (interfaces en java) ne peuvent pas etre mis
 	//en template dans un vector, sauf si c'est en pointeur 
 	std::vector<Constraint*> constraints;
