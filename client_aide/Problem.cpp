@@ -2,11 +2,18 @@
 #include "Nqueen_colonne.hpp"
 using namespace std;
 
-Problem::Problem(){
-}
  
+Problem::Problem(int x, vector<Constraint*> cst){
+	n = x;
+	constraints = cst;
+}
+
 Problem::Problem(vector<Constraint*> cst){
 	constraints = cst;
+}
+
+Noeud Problem::initialNode(){
+	return Noeud(n);
 }
 
 Proof Problem::testSat(Noeud node){

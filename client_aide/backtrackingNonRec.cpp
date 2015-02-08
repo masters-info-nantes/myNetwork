@@ -2,6 +2,12 @@
 
 using namespace std;
 
+BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraintes):problem(x,contraintes){
+	if(x > 0){
+		noeuds.push_front(problem.initialNode());
+	}
+}
+
 BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(contraintes){
 	parser(chaine);
 }
@@ -10,9 +16,18 @@ void BacktrackingNonRec::parser(std::string chaine){
 
 }
 
-string BacktrackingNonRec::toString(){
-
-
+string BacktrackingNonRec::toString(Noeud n){
+	string chaine = "";
+	for(int i=0; i<n.getDomains().size();i++){
+		chaine+="{";
+		set<int> domain = n.getDomains().at(i);
+		for (std::set<int>::iterator it = domain.begin(); it != domain.end(); it++){
+			chaine+=to_string(*it)+",";
+		}
+		chaine+="}";
+	}
+	chaine+="\n";
+	return chaine;
 }
 
 int BacktrackingNonRec::solve(){
@@ -21,7 +36,8 @@ int BacktrackingNonRec::solve(){
 	while(!noeuds.empty()){
 
 		std::list<Noeud>::iterator list_iter = noeuds.begin();
-
+		cout<<toString(*list_iter)<<endl;
+		cout<<"\n"<<endl;
 		while(list_iter != noeuds.end()){
 
 			std::list<Noeud>::iterator temp = list_iter;
@@ -31,8 +47,8 @@ int BacktrackingNonRec::solve(){
 			Proof p = problem.testSat(*temp);
 			if(p == succes){
 				nb_so++;
-				cout<<"Solution numero "<<nb_so<<": "<<endl;
-				temp->toString();
+				//cout<<"Solution numero "<<nb_so<<": "<<endl;
+				//temp->toString();
 				noeuds.erase(temp);
 			}
 			else if(p == echec){

@@ -17,10 +17,10 @@ int main(int argc, char *argv[]){
 	Nqueen_diago contrainte_diago;
 	contraintes.push_back(&contrainte_colonne);
 	contraintes.push_back(&contrainte_diago);
-	BacktrackingNonRec b(argv[1], contraintes);
+	BacktrackingNonRec b(6, contraintes);
 
 	int nb_sol = b.solve();
-
+	cout<<nb_sol<<endl;
                
 	return nb_sol;
 }
