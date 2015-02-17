@@ -19,7 +19,7 @@ public:
 	//cre le sous-noeud d'un noeud
 	void branch(Noeud noeud);
 	void parser(std::string chaine);
-	std::string toString(Noeud n);
+	std::string toString();
 
 private:
 	std::list<Noeud> noeuds;
