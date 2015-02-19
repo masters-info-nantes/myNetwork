@@ -11,17 +11,30 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
-
 	std::vector<Constraint*> contraintes;
 	Nqueen_colonne contrainte_colonne;
 	Nqueen_diago contrainte_diago;
 	contraintes.push_back(&contrainte_colonne);
 	contraintes.push_back(&contrainte_diago);
-	BacktrackingNonRec b(6, contraintes);
 
-	int nb_sol = b.solve();
-	cout<<nb_sol<<endl;
-               
-	return nb_sol;
+	int nb_sol;
+	//code client
+	if(argc>1){
+		string fichier = argv[1];
+		BacktrackingNonRec b(fichier, contraintes);
+		cout<<argv[1]<<endl;
+		nb_sol = b.solve();
+		cout<<nb_sol<<endl;
+	}
+	//code super client
+	else{
+		BacktrackingNonRec b(7, contraintes);
+		nb_sol = b.solve();
+		cout<<nb_sol<<endl;
+        }
+     
+
+	
+	return 0;
 }
 

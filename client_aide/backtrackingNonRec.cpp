@@ -1,11 +1,12 @@
 #include "backtrackingNonRec.hpp"
-
+#include <fstream>
 using namespace std;
 
 BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraintes):problem(x,contraintes){
 	if(x > 0){
 		noeuds.push_front(problem.initialNode());
 	}
+
 }
 
 BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(contraintes){
@@ -13,31 +14,75 @@ BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> c
 }
 
 void BacktrackingNonRec::parser(std::string chaine){
+	ifstream fichier(chaine, ios::in);
+	if(fichier){
+		string ligne;
+		while(getline(fichier, ligne)){
+			getline(fichier, ligne);
+			std::vector<std::set<int> >temp;
+			int i = 0;
+			while(i<ligne.size()){
+				if(ligne.at(i)=='{'){
+					std::set<int> ens_temp;
+					i++;
+					int val = ligne.at(i)-48;
+					i++;
+					ens_temp.insert(val);
+					temp.push_back(ens_temp);
+				}
+				i++;
 
+			}
+			Noeud n;
+			n.setDomains(temp);
+			noeuds.push_front(n);
+		
+		}
+	}
+	else{
+		cout<<"kjhbhjvbgv"<<endl;
+	}
 }
 
-string BacktrackingNonRec::toString(Noeud n){
+string BacktrackingNonRec::toString(){
 	string chaine = "";
-	for(int i=0; i<n.getDomains().size();i++){
-		chaine+="{";
-		set<int> domain = n.getDomains().at(i);
-		for (std::set<int>::iterator it = domain.begin(); it != domain.end(); it++){
-			chaine+=to_string(*it)+",";
+	std::list<Noeud>::iterator list_iter = noeuds.begin();
+	Noeud n = *list_iter;
+	int taille = noeuds.size()/2;
+	for(int i = 0; i<taille; i++){
+		for(int i=0; i<n.getDomains().size();i++){
+			chaine+="{";
+			set<int> domain = n.getDomains().at(i);
+			for (std::set<int>::iterator it = domain.begin(); it != domain.end(); it++){
+				chaine+=to_string(*it)+",";
+			}
+			chaine+="}";
 		}
-		chaine+="}";
+		chaine+="\n";
+		std::list<Noeud>::iterator temp = list_iter;
+
+		list_iter++;
+		noeuds.erase(temp);
+
 	}
-	chaine+="\n";
+
 	return chaine;
 }
 
 int BacktrackingNonRec::solve(){
 	int nb_so = 0;
 	int cpt = 0;
-	while(!noeuds.empty()){
 
+	while(!noeuds.empty()){
+		cout<<noeuds.size()<<"\n"<<endl;
+		string donnees="";
+		if(noeuds.size()>20000){
+			donnees = toString();
+		}
 		std::list<Noeud>::iterator list_iter = noeuds.begin();
-		cout<<toString(*list_iter)<<endl;
-		cout<<"\n"<<endl;
+
+		list_iter->toString();
+		cout<<noeuds.size()<<"\n"<<endl;
 		while(list_iter != noeuds.end()){
 
 			std::list<Noeud>::iterator temp = list_iter;
@@ -47,8 +92,6 @@ int BacktrackingNonRec::solve(){
 			Proof p = problem.testSat(*temp);
 			if(p == succes){
 				nb_so++;
-				//cout<<"Solution numero "<<nb_so<<": "<<endl;
-				//temp->toString();
 				noeuds.erase(temp);
 			}
 			else if(p == echec){
