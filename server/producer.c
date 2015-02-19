@@ -21,7 +21,7 @@ typedef struct servent servent;
 int* newIntPtr(int i) {
 	int* ptr = (int*)malloc(sizeof(int));
 	if(ptr == NULL)
-		return 0;
+		return NULL;
 	*ptr = i;
 	return ptr;
 }
@@ -36,10 +36,9 @@ void* producer(void* arg) {
 	sockaddr_in adresse_client_courant; /* adresse client courant */
     hostent* ptr_hote; /* les infos recuperees sur la machine hote */
     char machine[TAILLE_MAX_NOM+1]; /* nom de la machine locale */
-	int mallocTry;
-	int* ptrSocket;
-    //~ gethostname(machine,TAILLE_MAX_NOM); /* recuperation du nom de la machine */
-    gethostbyname(machine); /* recuperation du nom de la machine */
+	int* ptrSocket = 0;
+    gethostname(machine,TAILLE_MAX_NOM); /* recuperation du nom de la machine */
+    //~ gethostbyname(machine); /* recuperation du nom de la machine */
 
 	/* recuperation de la structure d'adresse en utilisant le nom */
     if ((ptr_hote = gethostbyname(machine)) == NULL) {
@@ -86,16 +85,11 @@ void* producer(void* arg) {
 			exit(1);
 		}
 		VERBOSE("PRODUCER","put to waiting queue client");
-		mallocTry = 0;
-		do {
-			ptrSocket = newIntPtr(nouv_socket_descriptor);
-			if(mallocTry >= MAX_MALLOC_TRY) {
-				ALERT("PRODUCER","dynamic allocation problem");
-				exit(1);
-			} else {
-				mallocTry++;
-			}
-		} while(mallocTry != 0);
+		ptrSocket = newIntPtr(nouv_socket_descriptor);
+		if(ptrSocket == NULL) {
+			ALERT("PRODUCER","dynamic allocation problem");
+			exit(1);
+		}
 		enqueue(waiting,ptrSocket);
 	}
 	VERBOSE("PRODUCER","end");

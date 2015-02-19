@@ -5,4 +5,7 @@
 
 void* consumer(void* arg);
 
+void genNextClientIdInit();
+void genNextClientIdEnd();
+
 #endif /* __CONSUMER__ */

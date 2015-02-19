@@ -7,19 +7,32 @@
 - newIdC : unique id generate by server for one client
 - idC : id of the client
 - idSC : the id of the client which have ask the task
+- data : could be on more than one line
 
-#### new client connexion
+#### unrecognize request
+- answer
+```
+KO <error>
+```
+
+#### new client connection
 - request
 ```
 CLIENT
 ON
 ```
+or
+```
+MASTER
+ON
+```
+Note: with MASTER indication, client is register with a working status
 - answer
 ```
 OK newIdC
 ```
 
-#### client deconnexion
+#### client disconnection
 - request
 ```
 CLIENT idC
@@ -31,6 +44,7 @@ OK
 ```
 
 #### client reserve another client for a task
+- request
 ```
 MASTER idSC
 TRY
@@ -41,13 +55,15 @@ OK idC
 ```
 or
 ```
-KO
+KO <error>
 ```
 
 #### client assign a task to a client
+- request
 ```
 MASTER idSC
 ASK idC
+data
 ```
 - answer
 ```
@@ -55,10 +71,11 @@ OK idC
 ```
 or
 ```
-KO idC
+KO <error>
 ```
 
 #### client response for the task
+- request
 ```
 MASTER idSC
 RES idC
@@ -66,5 +83,22 @@ data
 ```
 - answer
 ```
-OK
+OK idSC
+```
+or
+```
+KO <error>
+```
+
+#### client ask for waiting request
+- request
+```
+CLIENT idC
+WAITING
+```
+- answer
+the request that waiting forward (same as "client assign a task to a client" request)
+or
+```
+NOTHING
 ```

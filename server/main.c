@@ -52,14 +52,20 @@ int main(int argc, char** argv) {
 }
 
 int start() {
+	genNextClientIdInit();
+	listClient = makeListClient();
 	waiting = makeQueue();
+
 	pthread_create(&threads[THREAD_PRODUCER],NULL,&producer,NULL);
 	pthread_create(&threads[THREAD_CONSUMER],NULL,&consumer,NULL);
 	pthread_create(&threads[THREAD_CONSUMER2],NULL,&consumer,NULL);
 	pthread_join(threads[THREAD_PRODUCER],NULL);
 	pthread_join(threads[THREAD_CONSUMER],NULL);
 	pthread_join(threads[THREAD_CONSUMER2],NULL);
+
 	deleteQueue(waiting,true);
+	deleteListClient(listClient,true);
+	genNextClientIdEnd();
 	return 0;
 }
 

@@ -3,9 +3,14 @@
 
 #include <pthread.h>
 #include "Queue.h"
+#include "ListClient.h"
+
+#define PROGRAM_NAME "MyNetwork"
+#define PROGRAM_VERSION "0.0.1a"
+#define PROGRAM_AUTHORS "Franck Boncler & Anthony Pena"
+
 
 #define BUFFER_SIZE 256
-#define MAX_MALLOC_TRY 10
 #define SOCKET_PORT 5000
 #define SOCKET_WAITING_QUEUE_SIZE 10
 
@@ -16,7 +21,12 @@
 
 pthread_t threads[3];
 Queue* waiting;
+ListClient* listClient;
 
 #define uint unsigned int
+
+char* concat(char* s1, char* s2);
+char* clonestr(char* s);
+bool sameString(char* s1, char* s2, int nbCharToCompare);
 
 #endif /* __COMMON__ */
