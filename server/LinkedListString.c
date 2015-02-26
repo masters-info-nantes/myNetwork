@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "common.h"
+#include "colorlog.h"
 
 #ifndef NULL
 #define NULL 0
@@ -57,9 +58,17 @@ void concatLastString(LinkedListString* l, char* s) {
 
 char* getString(LinkedListString* l, int index) {
 	if(index == 0) {
-		return l->first->content;
+		if(l->first != 0) {
+			return l->first->content;
+		} else {
+			return 0;		
+		}
 	} else if(index == (l->size-1)) {
-		return l->last->content;
+		if(l->last != 0) {
+			return l->last->content;
+		} else {
+			return 0;		
+		}
 	} else if(index < l->size && index > 0) {
 		StringEntry* cur = l->first;
 		for(int i=1;i<=index;i++) {
@@ -97,13 +106,23 @@ char* removeLast(LinkedListString* l) {
 char* toCharRequest(LinkedListString* l) {
 	char *ret = "", *tmp;
 	StringEntry* cur = l->first;
+
 	while(cur != 0) {
+
 		tmp = ret;
 		ret = concat(ret,cur->content);
-		free(tmp);
+	INFO("CONSUMER.processRequest","333333333333333333333333333333333");
+		/*if(tmp != 0){
+			//printf("ret %s", ret);
+			free(tmp);
+		}*/
+	INFO("CONSUMER.processRequest","333333333333333333333333333333333");
 		tmp = ret;
 		ret = concat(ret,"\n");
-		free(tmp);
+		if(tmp != 0){
+			//free(tmp);
+		}
+		cur = cur->next;
 	}
 	return ret;
 }

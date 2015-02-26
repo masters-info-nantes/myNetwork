@@ -146,12 +146,14 @@ char* processRequest(LinkedListString* request) {
 				return "KO parsing error (master connection)\n";
 			}
 		} else {
+			INFO("CONSUMER","step 3");
 			for(int i=7;i<17;i++) {
 				if(line[i] == '\n') {
 					ALERT("CONSUMER.processRequest","error i=%d val=>%c</>%d< back=>%c</>%d< next=>%c</>%d<",i,line[i],line[i],line[i-1],line[i-1],line[i+1],line[i+1]);
 					return "KO parsing error (master id size not incorrect)\n";
 				}
 			}
+			INFO("CONSUMER","step 4");
 			char* line2 = getString(request,1);
 			if(sameString(line2,"TRY",3)) {// reserve request
 				if(line2[3] == '\n') {
@@ -160,9 +162,11 @@ char* processRequest(LinkedListString* request) {
 					return "KO parsing error (try request)\n";
 				}
 			} else if(sameString(line2,"ASK",3)) {// assign request
+				INFO("CONSUMER.processRequest","ask start");
 				if(line2[3] != '\n') {
+						INFO("CONSUMER.processRequest","ASK START2");
 					for(int i=4;i<14;i++) {
-						if(line[i] == '\0' || line[i] == '\n') {
+						if(line2[i] == '\0' || line2[i] == '\n') {
 							ALERT("CONSUMER.processRequest","error i=%d val=>%c</>%d< back=>%c</>%d< next=>%c</>%d<",i,line2[i],line2[i],line2[i-1],line2[i-1],line2[i+1],line2[i+1]);
 							return "KO parsing error (client id size not incorrect)\n";
 						}
@@ -174,10 +178,13 @@ char* processRequest(LinkedListString* request) {
 					char* masterId = line+(7*sizeof(char));
 					char* clientId = line2+(4*sizeof(char));
 					LinkedListString* dataList = makeLinkedListString();
+
 					for(int i=2;i<getSize(request);i++) {
 						addString(dataList,getString(request,i));
 					}
+					INFO("CONSUMER.processRequest","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 					char* data = toCharRequest(dataList);
+					INFO("CONSUMER.processRequest","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 					deleteLinkedListString(dataList,false);
 					return assignTaskToClient(masterId,clientId,data);
 				} else {
@@ -282,6 +289,7 @@ char* assignTaskToClient(char* masterId, char* targetClientId, char* data) {
 	addString(req,concat("ASK ",client->id));
 	addString(req,data);
 	enqueueRequest(client->waiting,req);
+	setClientState(client,WORKING);
 	return concat("OK ",client->id);
 }
 
@@ -302,6 +310,7 @@ char* responseForTask(char* masterId, char* clientId, char* data) {
 	addString(req,concat("RES ",client->id));
 	addString(req,data);
 	enqueueRequest(master->waiting,req);
+	setClientState(client,FREE);
 	return concat("OK ",master->id);
 }
 
