@@ -122,7 +122,6 @@ Client* removeClient(ListClient* l, int index) {
 }
 
 void printListClient(ListClient* l) {
-	INFO("ListClient","start");
 	printf("ListClient (%d) :\n",getSizeListClient(l));
 	if(getSizeListClient(l) > 0) {
 		ClientEntry *cur = l->first;
@@ -134,7 +133,6 @@ void printListClient(ListClient* l) {
 		printf("\tempty\n");
 	}
 	printf("\n");
-	INFO("ListClient","end");
 }
 
 
