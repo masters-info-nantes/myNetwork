@@ -11,12 +11,12 @@
 void runExternalProgram(char* programPath);
 
 void myNetworkStartDaemon(char* programPath) {
-	VERBOSE("myNetworkStartDaemon","start");
 	pid_t daemonPID = fork();
 	if(daemonPID != 0) {
 		printf("Daemon PID is %d\n",daemonPID);
 		exit(0);
 	}
+	VERBOSE("myNetworkStartDaemon","start");
 	
 	runExternalProgram(programPath);
 	
@@ -37,6 +37,12 @@ void runExternalProgram(char* programPath) {
 	
 }
 
+myNetwork_client_id myNetworkReserveClient() {
+	
+}
+
 void myNetworkSendTaskResponse(char* res) {
 	printf("res = >%s<\n",res);
 }
+
+
