@@ -74,7 +74,7 @@ int BacktrackingNonRec::solve(){
 	int cpt = 0;
 
 	while(!noeuds.empty()){
-		cout<<noeuds.size()<<"\n"<<endl;
+
 		string donnees="";
 		if(noeuds.size()>20000){
 			donnees = toString();
