@@ -15,9 +15,15 @@ void inputFileMode();
 
 int main(int argc, char** argv) {
 	mode = MODE_NORMAL;
-	
+	int port = 5000;
 	for(int i=0;i<argc;i++) {
-		if(strncmp("-d",argv[i],2) == 0 || strncmp("--daemon",argv[i],8) == 0) {
+		if(strncmp("-p",argv[i],2) == 0 || strncmp("--port",argv[i],6) == 0) {
+			int tmp = atoi(argv[i+1]);
+			if(tmp > 0) {
+				port = tmp;
+				i++;
+			}
+		} else if(strncmp("-d",argv[i],2) == 0 || strncmp("--daemon",argv[i],8) == 0) {
 			mode = MODE_DAEMON;
 		} else if(strncmp("-i",argv[i],2) == 0) {
 			mode = MODE_INPUT_FILE;
@@ -28,7 +34,7 @@ int main(int argc, char** argv) {
 	
 	switch(mode) {
 	case MODE_DAEMON:
-		myNetworkStartDaemon("./client -i");
+		myNetworkStartDaemon("./client -i",port);
 		break;
 	case MODE_INPUT_FILE:
 		inputFileMode();

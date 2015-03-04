@@ -1,3 +1,4 @@
 *.o
+clientlib/client
 server/myNetwork
 *~

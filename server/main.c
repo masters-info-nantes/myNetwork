@@ -20,6 +20,7 @@
 #define MODE_VERSION 3
 
 int mode = MODE_NORMAL;
+int port = SOCKET_PORT;
 
 int start();
 int readArgs(int argc, char** argv);
@@ -71,7 +72,13 @@ int start() {
 
 int readArgs(int argc, char** argv) {
 	for(int i=0;i<argc;i++) {
-		if(strncmp("-h",argv[i],2) == 0 || strncmp("--help",argv[i],6) == 0) {
+		if(strncmp("-p",argv[i],2) == 0 || strncmp("--port",argv[i],6) == 0) {
+			int tmp = atoi(argv[i+1]);
+			if(tmp > 0) {
+				port = tmp;
+				i++;
+			}
+		} else if(strncmp("-h",argv[i],2) == 0 || strncmp("--help",argv[i],6) == 0) {
 			mode = MODE_HELP;
 		} else if(strncmp("-d",argv[i],2) == 0 || strncmp("--daemon",argv[i],8) == 0) {
 			mode = MODE_DAEMON;

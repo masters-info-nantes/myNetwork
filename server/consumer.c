@@ -32,6 +32,7 @@ void* consumer(void* arg) {
 					close(*client);
 					break;
 				}
+				// TODO : cut buffer in lines by detecting '\n'
 				if(longueur > 0) {
 					if(longueur < BUFFER_SIZE)
 						buffer[longueur] = '\0';

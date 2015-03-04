@@ -18,6 +18,8 @@ typedef struct sockaddr_in sockaddr_in;
 typedef struct hostent hostent;
 typedef struct servent servent;
 
+extern int port;
+
 int* newIntPtr(int i) {
 	int* ptr = (int*)malloc(sizeof(int));
 	if(ptr == NULL)
@@ -53,7 +55,7 @@ void* producer(void* arg) {
 	adresse_locale.sin_family = ptr_hote->h_addrtype; /* ou AF_INET */
 	adresse_locale.sin_addr.s_addr = INADDR_ANY; /* ou AF_INET */
 
-	adresse_locale.sin_port = htons(SOCKET_PORT);
+	adresse_locale.sin_port = htons(port);
 
 	INFO("PRODUCER","Serveur will be connected to port : %d",ntohs(adresse_locale.sin_port));
 

@@ -1,12 +1,16 @@
 #ifndef __LIBMYNETWORK__
 #define __LIBMYNETWORK__
 
-typedef myNetwork_client_id int;
+#include <stdbool.h>
+#include "LinkedListString.h"
 
-void myNetworkStartDaemon(char* programPath);
+void myNetworkStartDaemon(char* programPath, int listenPort);
 
-void myNetworkSendTaskResponse(char* res);
+char* myNetworkConnectClient(int socket_descriptor);
+bool myNetworkDisconnectClient(int socket_descriptor, char* clientId);
 
-myNetwork_client_id myNetworkReserveClient();
+char* myNetworkReserveClient(int socket_descriptor, char* clientId);
+bool myNetworkAskClient(int socket_descriptor, char* clientId, char* targetClient, char* data);
+LinkedListString* myNetworkWaitingRequest(int socket_descriptor, char* clientId);
 
 #endif /* __LIBMYNETWORK__ */
