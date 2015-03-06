@@ -80,8 +80,23 @@ void myNetworkStartDaemon(char* programPath) {
 		VERBOSE("DAEMON","ask waiting request");
 		
 		LinkedListString* req = myNetworkWaitingRequest(socket_descriptor,clientId);
-		if(req != 0) {
-			// TODO process
+		if(req != 0 && !sameString(getString(req,0),"NOTHING",7)) {
+			char targetClient[11];
+			char* line1 = getString(req,0);
+			for(int i=7;i<strlen(line1);i++) {
+				targetClient[i-7] = line1[i];
+			}
+			targetClient[11] = '\0';
+			VERBOSE("DAEMON","target client >%s<(%d)",targetClient,strlen(targetClient));
+			char* tmpFileName = "tmp.txt";
+			FILE* tmpFile = fopen(tmpFileName,"w+");
+			for(int i=0;i<getSize(req);i++) {
+				fprintf(tmpFile,"%s",getString(req,i));
+			}
+			fclose(tmpFile);
+			char* progRet = "je suis la sortie de mon programme";
+			VERBOSE("DAEMON","prog ret >%s<",progRet);
+			myNetworkResponseRequest(socket_descriptor,clientId,targetClient,progRet);
 		} else {
 			WARNING("DAEMON","error when asking waiting request");
 		}
