@@ -21,6 +21,7 @@ typedef struct servent 		servent;
 int socket_descriptor;
 //~ int longueur;
 sockaddr_in adresse_locale;
+bool inited = false;
 hostent * ptr_host;
 servent * ptr_service;
 char* host_addr = "localhost";
@@ -49,6 +50,7 @@ void myNetworkStartDaemon(char* programPath, int listenPort) {
 	char* clientId;
 	int socket_descriptor;
 	
+	/* Declare connected */
 	VERBOSE("DAEMON","Open socket");
 	socket_descriptor = myNetworkCreateSocket();
 	if(myNetworkOpenSocketConnexion(socket_descriptor)) {
@@ -68,7 +70,29 @@ void myNetworkStartDaemon(char* programPath, int listenPort) {
 		WARNING("DAEMON","Socket not opened");
 	}
 	
+	while(1) {
+		VERBOSE("DAEMON","Open socket");
+	socket_descriptor = myNetworkCreateSocket();
+	if(myNetworkOpenSocketConnexion(socket_descriptor)) {
+		SUCCESS("DAEMON","Socket opened");
+		VERBOSE("DAEMON","ask waiting request");
+		
+		LinkedListString* req = myNetworkWaitingRequest(socket_descriptor,clientId);
+		if(req != 0) {
+			// TODO process
+		} else {
+			WARNING("DAEMON","error when asking waiting request");
+		}
+		
+		VERBOSE("DAEMON","Close socket");
+		myNetworkCloseSocketConnexion(socket_descriptor);
+		SUCCESS("DAEMON","Socket closed");
+	} else {
+		WARNING("DAEMON","Socket not opened");
+	}
+	}
 	
+	/* Declare disconnected */
 	VERBOSE("DAEMON","Open socket");
 	socket_descriptor = myNetworkCreateSocket();
 	if(myNetworkOpenSocketConnexion(socket_descriptor)) {
@@ -87,15 +111,13 @@ void myNetworkStartDaemon(char* programPath, int listenPort) {
 		WARNING("DAEMON","Socket not opened");
 	}
 	
-	
-	
 	VERBOSE("myNetworkStartDaemon","end\n");
 }
 
 /* Definition of private functions */
 
 char* runExternalProgram(char* programPath) {
-	printf("programPath >%s<\n",programPath);
+	VERBOSE("DAEMON.runExternalProgram","start programPath >%s<\n",programPath);
 	
 	char buffer[5];
 	char* stroutput = "";
@@ -104,15 +126,18 @@ char* runExternalProgram(char* programPath) {
 		stroutput = concat(stroutput,buffer);
 	}
 	pclose(output);
-	//~ printf(">%s<",stroutput);
+	VERBOSE("DAEMON.runExternalProgram","end >%s<",stroutput);
 	return stroutput;
 }
 
 
 int myNetworkCreateSocket() {
-	if ((ptr_host = gethostbyname(host_addr)) == NULL) {
-	perror("erreur : impossible de trouver le serveur a partir de son adresse.");
-		return -1;
+	if(!inited) {
+		if ((ptr_host = gethostbyname(host_addr)) == NULL) {
+		perror("erreur : impossible de trouver le serveur a partir de son adresse.");
+			return -1;
+		}
+		inited = true;
 	}
 	bcopy((char*)ptr_host->h_addr, (char*)&adresse_locale.sin_addr, ptr_host->h_length);
 	adresse_locale.sin_family = AF_INET; /* ou ptr_host->h_addrtype; */
@@ -152,6 +177,7 @@ bool myNetworkWrite(int socket_descriptor, LinkedListString* msg) {
 }
 
 LinkedListString* myNetworkRead(int socket_descriptor) {
+	// TODO cut buffer
 	char buffer[256];
 	int longueur;
 	LinkedListString* request = makeLinkedListString();
@@ -184,11 +210,14 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 
 /* Definition of public functions */
 
-char* myNetworkConnectClient(int socket_descriptor) {
+char* myNetworkConnectCM(int socket_descriptor, bool isMaster) {
 	VERBOSE("DAEMON.myNetworkConnectClient","start");
-	//~ char* msg = "CLIENT\nON\n\n";
 	LinkedListString* msg = makeLinkedListString();
-	addString(msg,"CLIENT");
+	if(isMaster) {
+		addString(msg,"MASTER");
+	} else {
+		addString(msg,"CLIENT");
+	}
 	addString(msg,"ON");
 	LinkedListString* res;
 	VERBOSE("DAEMON.myNetworkConnectClient","send connection msg");
@@ -199,7 +228,8 @@ char* myNetworkConnectClient(int socket_descriptor) {
 		VERBOSE("DAEMON.myNetworkConnectClient","before test OK");
 		if(line1[0] == 'O' && line1[1] == 'K') {
 			VERBOSE("DAEMON.myNetworkConnectClient","OK received");
-			char* clientId = (char*)malloc(sizeof(char)*10);
+			char* clientId = (char*)malloc(sizeof(char)*11);
+			clientId[10] = '\0';
 			VERBOSE("DAEMON.myNetworkConnectClient","copy id");
 			for(int i=0;i<10;i++) {
 				if(line1[i] != '\n') {
@@ -220,8 +250,15 @@ char* myNetworkConnectClient(int socket_descriptor) {
 	return 0;
 }
 
+char* myNetworkConnectClient(int socket_descriptor) {
+	return myNetworkConnectCM(socket_descriptor,false);
+}
+
+char* myNetworkConnectMaster(int socket_descriptor) {
+	return myNetworkConnectCM(socket_descriptor,true);
+}
+
 bool myNetworkDisconnectClient(int socket_descriptor, char* clientId) {
-	//~ char* msg = concat("CLIENT ",concat(clientId,"\nOFF\n\n"));
 	LinkedListString* msg = makeLinkedListString();
 	addString(msg,concat("CLIENT ",clientId));
 	addString(msg,"OFF");
@@ -239,7 +276,6 @@ bool myNetworkDisconnectClient(int socket_descriptor, char* clientId) {
 }
 
 char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
-	//~ char* msg = concat("CLIENT ",concat(clientId,"\nTRY\n\n"));
 	LinkedListString* msg = makeLinkedListString();
 	addString(msg,concat("CLIENT ",clientId));
 	addString(msg,"TRY");
@@ -248,7 +284,8 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 		res = myNetworkRead(socket_descriptor);
 		char* line1 = getString(res,0);
 		if(line1[0] == 'O' && line1[1] == 'K') {
-			char* clientId = (char*)malloc(sizeof(char)*10);
+			char* clientId = (char*)malloc(sizeof(char)*11);
+			clientId[10] = '\0';
 			for(int i=0;i<10;i++) {
 				if(line1[i] != '\n') {
 					clientId[i] = line1[3+i];
@@ -265,7 +302,6 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 }
 
 bool myNetworkAskClient(int socket_descriptor, char* clientId, char* targetClient, char* data) {
-	//~ char* msg = concat("CLIENT ",concat(clientId,concat("\nASK ",concat(targetClient,concat("\n",concat(data,"\n\n"))))));
 	LinkedListString* msg = makeLinkedListString();
 	addString(msg,concat("CLIENT ",clientId));
 	addString(msg,concat("ASK ",targetClient));
@@ -276,7 +312,9 @@ bool myNetworkAskClient(int socket_descriptor, char* clientId, char* targetClien
 		res = myNetworkRead(socket_descriptor);
 		char* line1 = getString(res,0);
 		if(line1[0] == 'O' && line1[1] == 'K') {
-			if(sameString(targetClient,line1+(3*sizeof(char)),10)) {
+			char* clientId = line1+(3*sizeof(char));
+			clientId[10] = '\0';
+			if(sameString(targetClient,clientId,10)) {
 				return true;
 			} else {
 				return false;
@@ -289,13 +327,43 @@ bool myNetworkAskClient(int socket_descriptor, char* clientId, char* targetClien
 }
 
 LinkedListString* myNetworkWaitingRequest(int socket_descriptor, char* clientId) {
-	//~ char* msg = concat("CLIENT ",concat(clientId,"\nWAITING\n\n"));
 	LinkedListString* msg = makeLinkedListString();
 	addString(msg,concat("CLIENT ",clientId));
 	addString(msg,"WAITING");
 	if(myNetworkWrite(socket_descriptor,msg)) {
-		return myNetworkRead(socket_descriptor);
+		LinkedListString* res = myNetworkRead(socket_descriptor);
+		if(res != 0) {
+			return res;
+		} else {
+			return 0;
+		}
 	}
 	return 0;
+}
+
+bool myNetworkResponseRequest(int socket_descriptor, char* clientId, char* targetClient, char* data) {
+	VERBOSE("DAEMON.myNetworkResponseRequest","start");
+	LinkedListString* msg = makeLinkedListString();
+	addString(msg,concat("MASTER ",clientId));
+	targetClient[10] = '\0';
+	addString(msg,concat("RES ",targetClient));
+	addString(msg,data);
+	VERBOSE("DAEMON.myNetworkResponseRequest","send res");
+	LinkedListString* res;
+	if(myNetworkWrite(socket_descriptor,msg)) {
+		VERBOSE("DAEMON.myNetworkResponseRequest","write ok");
+		res = myNetworkRead(socket_descriptor);
+		VERBOSE("DAEMON.myNetworkResponseRequest","read ok");
+		char* line1 = getString(res,0);
+		if(line1[0] == 'O' && line1[1] == 'K') {
+			VERBOSE("DAEMON.myNetworkResponseRequest","end ok");
+			return true;
+		} else {
+			VERBOSE("DAEMON.myNetworkResponseRequest","end 1");
+			return false;
+		}
+	}
+	VERBOSE("DAEMON.myNetworkResponseRequest","end 0");
+	return false;
 }
 

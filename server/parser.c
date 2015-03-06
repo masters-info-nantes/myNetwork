@@ -23,7 +23,7 @@ char* processRequest(LinkedListString* request) {
 	char* response = "KO unknown error";// TODO remove test default response
 	char* line = getString(request,0);
 	if(sameString(line,"CLIENT",6)) {
-		if(line[6] == '\n') {// new client connection
+		if(line[6] == '\n' || line[6] == '\0') {// new client connection
 			if(sameString(getString(request,1),"ON",2)) {// valid
 				INFO("CONSUMER.processRequest","new client connection");
 				response = newClientConnection(FREE);
@@ -32,21 +32,21 @@ char* processRequest(LinkedListString* request) {
 			}
 		} else {//client disconnection or waiting
 			for(int i=7;i<17;i++) {
-				if(line[i] == '\n') {
+				if(line[i] == '\n' || line[i] == '\0') {
 					ALERT("CONSUMER.processRequest","error i=%d val=>%c</>%d< back=>%c</>%d< next=>%c</>%d<",i,line[i],line[i],line[i-1],line[i-1],line[i+1],line[i+1]);
 					return "KO parsing error (client id size not incorrect)\n";
 				}
 			}
 			char* line2 = getString(request,1);
 			if(sameString(line2,"OFF",3)) {
-				if(line2[3] == '\n') {
+				if(line2[3] == '\n' || line2[3] == '\0') {
 					INFO("CONSUMER.processRequest","client deconnection");
 					response = clientDisconnection(line+(7*sizeof(char)));
 				} else {
 					return "KO parsing error (off request)";
 				}
 			} else if(sameString(line2,"WAITING",7)) {
-				if(line2[7] == '\n') {
+				if(line2[7] == '\n' || line2[7] == '\0') {
 					INFO("CONSUMER.processRequest","client request for waiting request");
 					response = waitingRequest(line+(7*sizeof(char)));
 				} else {
@@ -60,7 +60,7 @@ char* processRequest(LinkedListString* request) {
 			
 		}
 	} else if(sameString(line,"MASTER",6)) {
-		if(line[6] == '\n') {// new master connection
+		if(line[6] == '\n' || line[6] == '\0') {// new master connection
 			if(sameString(getString(request,1),"ON",2)) {// valid
 				INFO("CONSUMER.processRequest","new master connection");
 				response = newClientConnection(WORKING);
@@ -78,7 +78,7 @@ char* processRequest(LinkedListString* request) {
 			INFO("CONSUMER","step 4");
 			char* line2 = getString(request,1);
 			if(sameString(line2,"TRY",3)) {// reserve request
-				if(line2[3] == '\n') {
+				if(line2[3] == '\n' || line2[3] == '\0') {
 					return reserveClient(line+(7*sizeof(char)));
 				} else {
 					return "KO parsing error (try request)\n";
@@ -104,16 +104,16 @@ char* processRequest(LinkedListString* request) {
 					for(int i=2;i<getSize(request);i++) {
 						addString(dataList,getString(request,i));
 					}
-					INFO("CONSUMER.processRequest","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+					//~ INFO("CONSUMER.processRequest","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 					char* data = toCharRequest(dataList);
-					INFO("CONSUMER.processRequest","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+					//~ INFO("CONSUMER.processRequest","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 					deleteLinkedListString(dataList,false);
 					return assignTaskToClient(masterId,clientId,data);
 				} else {
 					return "KO parsing error (ask request)\n";
 				}
 			} else if(sameString(line2,"RES",3)) {// result request
-				if(line2[3] != '\n') {
+				if(line2[3] != '\n' || line2[3] != '\0') {
 					for(int i=4;i<14;i++) {
 						if(line[i] == '\0' || line[i] == '\n') {
 							ALERT("CONSUMER.processRequest","error i=%d val=>%c</>%d< back=>%c</>%d< next=>%c</>%d<",i,line2[i],line2[i],line2[i-1],line2[i-1],line2[i+1],line2[i+1]);
@@ -171,7 +171,7 @@ char* waitingRequest(char* clientId) {
 	Client* client = getClient(listClient,clientPos);
 	LinkedListString* waitReq = dequeueRequest(client->waiting);
 	if(waitReq == 0) {
-		return "NOTHING";
+		return "NOTHING\n\n";
 	} else {
 		return toCharRequest(waitReq);
 	}

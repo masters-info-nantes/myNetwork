@@ -8,7 +8,7 @@
 #define MODE_INPUT_FILE 2
 
 int mode;
-char* file;
+char* fileName;
 
 void normalMode();
 void inputFileMode();
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 			mode = MODE_DAEMON;
 		} else if(strncmp("-i",argv[i],2) == 0) {
 			mode = MODE_INPUT_FILE;
-			file = argv[i+1];
+			fileName = argv[i+1];
 			i++;
 		}
 	}
@@ -55,5 +55,5 @@ void normalMode() {
 
 void inputFileMode() {
 	sleep(1);
-	printf("INPUT FILE MODE");
+	printf("INPUT FILE MODE >%s<",fileName);
 }
