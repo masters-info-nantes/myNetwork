@@ -178,17 +178,14 @@ void myNetworkCloseSocketConnexion(int socket) {
 	close(socket);
 }
 
-
 bool myNetworkWrite(int socket_descriptor, LinkedListString* msg) {
 	char* line;
 
 	for(int i=0;i<getSize(msg);i++) {
 		
 		line = concat(getString(msg,i),"\n");
-
-		//if((write(socket_descriptor, line, strlen(line))) < 0) {
-		if((send(socket_descriptor, line, strlen(line), 0)) < 0) {
-			printf("dans le if 1\n");
+		printf("alors ?     %s\n", line);
+		if((write(socket_descriptor, line, strlen(line))) < 0) {
 			return false;
 		}
 	}
@@ -314,18 +311,14 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 				if(line1[i] != '\n') {
 					clientId[i] = line1[3+i];
 				} else {
-					printf("1");
 					return 0;
 				}
 			}
-			printf("2");
 			return clientId;
 		} else {
-			printf("3");
 			return 0;
 		}
 	}
-	printf("4");
 	return 0;
 }
 

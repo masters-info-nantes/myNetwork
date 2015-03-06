@@ -88,13 +88,17 @@ int BacktrackingNonRec::solve(){
 			int socket = myNetworkCreateSocket();
 
 			myNetworkOpenSocketConnexion(socket);
-			char* id_client = myNetworkReserveClient(socket, id_master);	
+			char* id_client = myNetworkReserveClient(socket, id_master);
+			myNetworkCloseSocketConnexion(socket);	
 			if(id_client != 0){
 				char* cha = new char[donnees.length()+1];
 				strcpy(cha, donnees.c_str());
+socket = myNetworkCreateSocket();
+			myNetworkOpenSocketConnexion(socket);
 				bool ok = myNetworkAskClient(socket, id_master, id_client, cha);
-			}
 			myNetworkCloseSocketConnexion(socket);
+			}
+
 			/*FRESEAUX*/
 		}
 
@@ -130,7 +134,7 @@ int BacktrackingNonRec::solve(){
 	//cout<<temp<<"      "<<getString(temp, 2)<<endl;
 	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
 
-		std::cout<<atoi(getString(temp, 2))<<std::endl;
+		std::cout<<"atoi     "<<atoi(getString(temp, 2))<<std::endl;
 		//nb_so+=atoi(getString(temp, 2));
 
 		socket = myNetworkCreateSocket();
