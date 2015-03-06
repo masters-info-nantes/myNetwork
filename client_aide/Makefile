@@ -10,7 +10,7 @@ else
 	LDFLAGS=
 endif
 
-SRC= $(wildcard *.cpp)
+SRC= $(wildcard *.cpp) $(wildcard ../clientlib/*.c)
 OBJ= $(SRC:.cpp=.o)
 
 all: $(EXEC)

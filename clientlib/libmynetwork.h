@@ -6,6 +6,10 @@
 
 void myNetworkStartDaemon(char* programPath, int listenPort);
 
+int myNetworkCreateSocket();
+bool myNetworkOpenSocketConnexion(int socket);
+void myNetworkCloseSocketConnexion(int socket);
+
 char* myNetworkConnectClient(int socket_descriptor);
 char* myNetworkConnectMaster(int socket_descriptor);
 bool myNetworkDisconnectClient(int socket_descriptor, char* clientId);

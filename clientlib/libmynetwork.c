@@ -31,10 +31,6 @@ char clientId[11];
 // private functions
 char* runExternalProgram(char* programPath);
 
-int myNetworkCreateSocket();
-bool myNetworkOpenSocketConnexion(int socket);
-void myNetworkCloseSocketConnexion(int socket);
-
 bool myNetworkWrite(int socket_descriptor, LinkedListString* msg);
 LinkedListString* myNetworkRead(int socket_descriptor);
 

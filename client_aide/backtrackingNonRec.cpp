@@ -7,6 +7,12 @@ BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraint
 		noeuds.push_front(problem.initialNode());
 	}
 
+	int socket = myNetworkCreateSocket();
+
+	myNetworkOpenSocketConnexion(socket);
+	id_master = myNetworkConnectMaster(socket);
+	myNetworkCloseSocketConnexion(socket);
+
 }
 
 BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(contraintes){
@@ -39,9 +45,7 @@ void BacktrackingNonRec::parser(std::string chaine){
 		
 		}
 	}
-	else{
-		cout<<"kjhbhjvbgv"<<endl;
-	}
+
 }
 
 string BacktrackingNonRec::toString(){
@@ -78,11 +82,24 @@ int BacktrackingNonRec::solve(){
 		string donnees="";
 		if(noeuds.size()>20000){
 			donnees = toString();
+
+
+			/*RESEAUX*/
+			int socket = myNetworkCreateSocket();
+
+			myNetworkOpenSocketConnexion(socket);
+			char* id_client = myNetworkReserveClient(socket, id_master);	
+			if(id_client != 0){
+				char* cha = new char[donnees.length()+1];
+				strcpy(cha, donnees.c_str());
+				bool ok = myNetworkAskClient(socket, id_master, id_client, cha);
+			}
+			myNetworkCloseSocketConnexion(socket);
+			/*FRESEAUX*/
 		}
+
 		std::list<Noeud>::iterator list_iter = noeuds.begin();
 
-		list_iter->toString();
-		cout<<noeuds.size()<<"\n"<<endl;
 		while(list_iter != noeuds.end()){
 
 			std::list<Noeud>::iterator temp = list_iter;
@@ -104,6 +121,26 @@ int BacktrackingNonRec::solve(){
 		}
 	cpt++;
 	}
+
+	/*RESEAUX*/
+	int socket = myNetworkCreateSocket();
+	myNetworkOpenSocketConnexion(socket);
+	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
+	myNetworkCloseSocketConnexion(socket);
+
+	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
+		
+		std::cout<<atoi(getString(temp, 2))<<std::endl;
+		//nb_so+=atoi(getString(temp, 2));
+
+		socket = myNetworkCreateSocket();
+		myNetworkOpenSocketConnexion(socket);
+		temp = myNetworkWaitingRequest(socket, id_master);
+		myNetworkCloseSocketConnexion(socket);
+	}
+
+	/*FRESEAUX*/
+	
 	return nb_so;
 }
 

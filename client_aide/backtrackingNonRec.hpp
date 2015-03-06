@@ -8,6 +8,8 @@
 #include "Problem.hpp"
 #include "Constraint.hpp"
 #include <string>
+#include <string.h>
+#include "../clientlib/libmynetwork.h"
 
 class BacktrackingNonRec : public Solveur{
 
@@ -22,6 +24,7 @@ public:
 	std::string toString();
 
 private:
+	char* id_master;
 	std::list<Noeud> noeuds;
 	Problem problem;
 
