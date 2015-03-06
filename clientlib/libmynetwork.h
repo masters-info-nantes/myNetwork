@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include "LinkedListString.h"
 
-void myNetworkStartDaemon(char* programPath, int listenPort);
+void myNetworkSetPort(int listenPort);
+void myNetworkSetHost(char* host);
+void myNetworkStartDaemon(char* programPath);
 
 int myNetworkCreateSocket();
 bool myNetworkOpenSocketConnexion(int socket);

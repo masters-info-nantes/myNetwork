@@ -1,4 +1,5 @@
 *.o
+client_aide/solver
 clientlib/client
 server/myNetwork
 *~

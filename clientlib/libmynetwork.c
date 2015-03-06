@@ -34,9 +34,15 @@ char* runExternalProgram(char* programPath);
 bool myNetworkWrite(int socket_descriptor, LinkedListString* msg);
 LinkedListString* myNetworkRead(int socket_descriptor);
 
-
-void myNetworkStartDaemon(char* programPath, int listenPort) {
+void myNetworkSetPort(int listenPort) {
 	host_port = listenPort;
+}
+
+void myNetworkSetHost(char* host) {
+	host_addr = host;
+}
+
+void myNetworkStartDaemon(char* programPath) {
 	//~ pid_t daemonPID = fork();
 	//~ if(daemonPID != 0) {
 		//~ printf("Daemon PID is %d\n",daemonPID);
