@@ -166,9 +166,14 @@ void myNetworkCloseSocketConnexion(int socket) {
 
 bool myNetworkWrite(int socket_descriptor, LinkedListString* msg) {
 	char* line;
+
 	for(int i=0;i<getSize(msg);i++) {
+		
 		line = concat(getString(msg,i),"\n");
-		if((write(socket_descriptor, line, strlen(line))) < 0) {
+
+		//if((write(socket_descriptor, line, strlen(line))) < 0) {
+		if((send(socket_descriptor, line, strlen(line), 0)) < 0) {
+			printf("dans le if 1\n");
 			return false;
 		}
 	}
@@ -279,12 +284,14 @@ bool myNetworkDisconnectClient(int socket_descriptor, char* clientId) {
 
 char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 	LinkedListString* msg = makeLinkedListString();
-	addString(msg,concat("CLIENT ",clientId));
+	addString(msg,concat("MASTER ",clientId));
 	addString(msg,"TRY");
+	printf("%s\n", toCharRequest(msg));
 	LinkedListString* res;
 	if(myNetworkWrite(socket_descriptor,msg)) {
 		res = myNetworkRead(socket_descriptor);
 		char* line1 = getString(res,0);
+
 		if(line1[0] == 'O' && line1[1] == 'K') {
 			char* clientId = (char*)malloc(sizeof(char)*11);
 			clientId[10] = '\0';
@@ -292,24 +299,29 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 				if(line1[i] != '\n') {
 					clientId[i] = line1[3+i];
 				} else {
+					printf("1");
 					return 0;
 				}
 			}
+			printf("2");
 			return clientId;
 		} else {
+			printf("3");
 			return 0;
 		}
 	}
+	printf("4");
 	return 0;
 }
 
 bool myNetworkAskClient(int socket_descriptor, char* clientId, char* targetClient, char* data) {
 	LinkedListString* msg = makeLinkedListString();
-	addString(msg,concat("CLIENT ",clientId));
+	addString(msg,concat("MASTER ",clientId));
 	addString(msg,concat("ASK ",targetClient));
 	addString(msg,data);
-	
+
 	LinkedListString* res;
+
 	if(myNetworkWrite(socket_descriptor,msg)) {
 		res = myNetworkRead(socket_descriptor);
 		char* line1 = getString(res,0);

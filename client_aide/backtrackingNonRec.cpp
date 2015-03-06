@@ -80,9 +80,9 @@ int BacktrackingNonRec::solve(){
 	while(!noeuds.empty()){
 
 		string donnees="";
-		if(noeuds.size()>20000){
-			donnees = toString();
+		if(noeuds.size()>2){
 
+			donnees = toString();
 
 			/*RESEAUX*/
 			int socket = myNetworkCreateSocket();
@@ -127,9 +127,9 @@ int BacktrackingNonRec::solve(){
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
 	myNetworkCloseSocketConnexion(socket);
-
+	//cout<<temp<<"      "<<getString(temp, 2)<<endl;
 	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
-		
+
 		std::cout<<atoi(getString(temp, 2))<<std::endl;
 		//nb_so+=atoi(getString(temp, 2));
 
@@ -138,9 +138,11 @@ int BacktrackingNonRec::solve(){
 		temp = myNetworkWaitingRequest(socket, id_master);
 		myNetworkCloseSocketConnexion(socket);
 	}
-
+	socket = myNetworkCreateSocket();
+	myNetworkOpenSocketConnexion(socket);
+	myNetworkDisconnectClient(socket, id_master);
 	/*FRESEAUX*/
-	
+
 	return nb_so;
 }
 

@@ -55,9 +55,10 @@ int main(int argc, char *argv[]){
 	contraintes.push_back(&contrainte_diago);
 
 	int nb_sol;
-
+	myNetworkSetPort(port);
+	myNetworkSetHost(host);
 	if(mode == MODE_DAEMON){
-		myNetworkStartDaemon("./solve -i", port);
+		myNetworkStartDaemon("./solve -i");
 	}
 	else if(mode == MODE_INPUT_FILE){
 		BacktrackingNonRec b(file, contraintes);
@@ -65,7 +66,7 @@ int main(int argc, char *argv[]){
 		cout<<nb_sol<<endl;
 	}
 	else if(mode == MODE_NORMAL){
-		BacktrackingNonRec b(7, contraintes);
+		BacktrackingNonRec b(4, contraintes);
 		nb_sol = b.solve();
 		cout<<nb_sol<<endl;
 	}
