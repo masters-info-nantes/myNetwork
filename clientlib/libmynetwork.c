@@ -80,6 +80,9 @@ void myNetworkStartDaemon(char* programPath) {
 		VERBOSE("DAEMON","ask waiting request");
 		
 		LinkedListString* req = myNetworkWaitingRequest(socket_descriptor,clientId);
+		//
+		myNetworkCloseSocketConnexion(socket_descriptor);
+		//
 		if(req != 0 && !sameString(getString(req,0),"NOTHING",7)) {
 			char targetClient[11];
 			char* line1 = getString(req,0);
@@ -96,13 +99,18 @@ void myNetworkStartDaemon(char* programPath) {
 			fclose(tmpFile);
 			char* progRet = "je suis la sortie de mon programme";
 			VERBOSE("DAEMON","prog ret >%s<",progRet);
+			socket_descriptor = myNetworkCreateSocket();
+			myNetworkOpenSocketConnexion(socket_descriptor);
+
 			myNetworkResponseRequest(socket_descriptor,clientId,targetClient,progRet);
+
+			myNetworkCloseSocketConnexion(socket_descriptor);
 		} else {
 			WARNING("DAEMON","error when asking waiting request");
 		}
 		
 		VERBOSE("DAEMON","Close socket");
-		myNetworkCloseSocketConnexion(socket_descriptor);
+		//myNetworkCloseSocketConnexion(socket_descriptor);
 		SUCCESS("DAEMON","Socket closed");
 	} else {
 		WARNING("DAEMON","Socket not opened");
@@ -182,9 +190,8 @@ bool myNetworkWrite(int socket_descriptor, LinkedListString* msg) {
 	char* line;
 
 	for(int i=0;i<getSize(msg);i++) {
-		
+
 		line = concat(getString(msg,i),"\n");
-		printf("alors ?     %s\n", line);
 		if((write(socket_descriptor, line, strlen(line))) < 0) {
 			return false;
 		}
@@ -298,7 +305,6 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 	LinkedListString* msg = makeLinkedListString();
 	addString(msg,concat("MASTER ",clientId));
 	addString(msg,"TRY");
-	printf("%s\n", toCharRequest(msg));
 	LinkedListString* res;
 	if(myNetworkWrite(socket_descriptor,msg)) {
 		res = myNetworkRead(socket_descriptor);
@@ -370,6 +376,7 @@ bool myNetworkResponseRequest(int socket_descriptor, char* clientId, char* targe
 	targetClient[10] = '\0';
 	addString(msg,concat("RES ",targetClient));
 	addString(msg,data);
+
 	VERBOSE("DAEMON.myNetworkResponseRequest","send res");
 	LinkedListString* res;
 	if(myNetworkWrite(socket_descriptor,msg)) {

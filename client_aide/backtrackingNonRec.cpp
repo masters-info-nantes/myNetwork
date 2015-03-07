@@ -131,10 +131,10 @@ socket = myNetworkCreateSocket();
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
 	myNetworkCloseSocketConnexion(socket);
-	//cout<<temp<<"      "<<getString(temp, 2)<<endl;
-	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
 
-		std::cout<<"atoi     "<<atoi(getString(temp, 2))<<std::endl;
+	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) == 0){
+		cout<<"iciiiiiiiiiiiiiiiiii"<<endl;
+		std::cout<<"atoi     "<<getString(temp, 2)<<std::endl;
 		//nb_so+=atoi(getString(temp, 2));
 
 		socket = myNetworkCreateSocket();
