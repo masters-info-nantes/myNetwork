@@ -1,5 +1,8 @@
 #include "backtrackingNonRec.hpp"
+
+#include <string>
 #include <fstream>
+#include <unistd.h>
 using namespace std;
 
 BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraintes):problem(x,contraintes){
@@ -20,7 +23,7 @@ BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> c
 }
 
 void BacktrackingNonRec::parser(std::string chaine){
-	ifstream fichier(chaine, ios::in);
+	ifstream fichier(chaine.c_str());
 	if(fichier){
 		string ligne;
 		while(getline(fichier, ligne)){
@@ -58,7 +61,9 @@ string BacktrackingNonRec::toString(){
 			chaine+="{";
 			set<int> domain = n.getDomains().at(i);
 			for (std::set<int>::iterator it = domain.begin(); it != domain.end(); it++){
-				chaine+=to_string(*it)+",";
+				int num = *it;
+				char n[3];		
+				chaine+=sprintf(n, "%d", num);+",";
 			}
 			chaine+="}";
 		}
@@ -127,14 +132,14 @@ socket = myNetworkCreateSocket();
 	}
 
 	/*RESEAUX*/
+	sleep(10);
 	int socket = myNetworkCreateSocket();
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
 	myNetworkCloseSocketConnexion(socket);
-
-	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) == 0){
-		cout<<"iciiiiiiiiiiiiiiiiii"<<endl;
-		std::cout<<"atoi     "<<getString(temp, 2)<<std::endl;
+	std::cout<<temp<<"    "<<getString(temp, 0)<<std::endl;
+	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
+		//std::cout<<"atoi     "<<getString(temp, 0)<<"  g  "<<getString(temp, 1)<<"  g  "<<<getString(temp, 2)<<std::endl;
 		//nb_so+=atoi(getString(temp, 2));
 
 		socket = myNetworkCreateSocket();

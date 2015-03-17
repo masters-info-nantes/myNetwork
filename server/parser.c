@@ -212,6 +212,7 @@ char* assignTaskToClient(char* masterId, char* targetClientId, char* data) {
 }
 
 char* responseForTask(char* masterId, char* clientId, char* data) {
+	SUCCESS("responseForTask","start");
 	int masterPos = getClientIndex(listClient,masterId);
 	if(masterPos < 0)
 		return "KO unrecognize master id";
@@ -228,6 +229,7 @@ char* responseForTask(char* masterId, char* clientId, char* data) {
 	addString(req,concat("RES ",client->id));
 	addString(req,data);
 	enqueueRequest(master->waiting,req);
+	SUCCESS("responseForTask","client FREE");
 	setClientState(client,FREE);
 	return concat("OK ",master->id);
 }

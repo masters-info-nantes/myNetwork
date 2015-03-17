@@ -48,7 +48,9 @@ void myNetworkStartDaemon(char* programPath) {
 		//~ printf("Daemon PID is %d\n",daemonPID);
 		//~ exit(0);
 	//~ }
+
 	VERBOSE("myNetworkStartDaemon","start");
+
 	char* clientId;
 	int socket_descriptor;
 	
@@ -83,6 +85,7 @@ void myNetworkStartDaemon(char* programPath) {
 		//
 		myNetworkCloseSocketConnexion(socket_descriptor);
 		//
+		printf("%d && %d,   %s\n", req != 0, !sameString(getString(req,0),"NOTHING",7), toCharRequest(req));
 		if(req != 0 && !sameString(getString(req,0),"NOTHING",7)) {
 			char targetClient[11];
 			char* line1 = getString(req,0);
@@ -101,9 +104,9 @@ void myNetworkStartDaemon(char* programPath) {
 			VERBOSE("DAEMON","prog ret >%s<",progRet);
 			socket_descriptor = myNetworkCreateSocket();
 			myNetworkOpenSocketConnexion(socket_descriptor);
-
+			VERBOSE("DAEMON","myNetworkResponseRequest");
 			myNetworkResponseRequest(socket_descriptor,clientId,targetClient,progRet);
-
+			VERBOSE("DAEMON","myNetworkResponseRequest ok");
 			myNetworkCloseSocketConnexion(socket_descriptor);
 		} else {
 			WARNING("DAEMON","error when asking waiting request");
@@ -208,7 +211,9 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 	int longueur;
 	LinkedListString* request = makeLinkedListString();
 	bool concatNext = false;
+
 	while((longueur = read(socket_descriptor, buffer, sizeof(buffer))) > 0) {
+		printf("longueur:  %d   \n", longueur);
 		if(longueur < 256)
 			buffer[longueur] = '\0';
 		if(longueur == 1 && buffer[0] == '\n')
@@ -231,6 +236,7 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 			}
 		}
 	}
+	printf("longueur:  %d   %d\n", longueur, socket_descriptor);
 	return request;
 }
 
@@ -372,9 +378,9 @@ LinkedListString* myNetworkWaitingRequest(int socket_descriptor, char* clientId)
 bool myNetworkResponseRequest(int socket_descriptor, char* clientId, char* targetClient, char* data) {
 	VERBOSE("DAEMON.myNetworkResponseRequest","start");
 	LinkedListString* msg = makeLinkedListString();
-	addString(msg,concat("MASTER ",clientId));
+	addString(msg,concat("MASTER ",targetClient));
 	targetClient[10] = '\0';
-	addString(msg,concat("RES ",targetClient));
+	addString(msg,concat("RES ",clientId));
 	addString(msg,data);
 
 	VERBOSE("DAEMON.myNetworkResponseRequest","send res");
@@ -382,13 +388,13 @@ bool myNetworkResponseRequest(int socket_descriptor, char* clientId, char* targe
 	if(myNetworkWrite(socket_descriptor,msg)) {
 		VERBOSE("DAEMON.myNetworkResponseRequest","write ok");
 		res = myNetworkRead(socket_descriptor);
-		VERBOSE("DAEMON.myNetworkResponseRequest","read ok");
+		VERBOSE("DAEMON.myNetworkResponseRequest","read ok (%d)",getSize(res));
 		char* line1 = getString(res,0);
 		if(line1[0] == 'O' && line1[1] == 'K') {
 			VERBOSE("DAEMON.myNetworkResponseRequest","end ok");
 			return true;
 		} else {
-			VERBOSE("DAEMON.myNetworkResponseRequest","end 1");
+			VERBOSE("DAEMON.myNetworkResponseRequest","end 1 >%s<",line1);
 			return false;
 		}
 	}

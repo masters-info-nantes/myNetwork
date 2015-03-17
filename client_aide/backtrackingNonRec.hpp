@@ -3,11 +3,12 @@
 
 #include <iostream>
 #include <list>
+#include <stdlib.h>
+#include <stdio.h>
 #include "Noeud.hpp"
 #include "Solv.hpp"
 #include "Problem.hpp"
 #include "Constraint.hpp"
-#include <string>
 #include <string.h>
 #include "../clientlib/libmynetwork.h"
 
