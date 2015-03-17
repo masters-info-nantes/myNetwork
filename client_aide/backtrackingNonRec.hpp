@@ -23,6 +23,7 @@ public:
 	void branch(Noeud noeud);
 	void parser(std::string chaine);
 	std::string toString();
+	bool isMaster;
 
 private:
 	char* id_master;

@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include <sstream>
 #include "../clientlib/colorlog.h"
 using namespace std;
 
@@ -16,11 +17,13 @@ BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraint
 	myNetworkOpenSocketConnexion(socket);
 	id_master = myNetworkConnectMaster(socket);
 	myNetworkCloseSocketConnexion(socket);
-
+    isMaster= true;
 }
 
 BacktrackingNonRec::BacktrackingNonRec(string chaine, std::vector<Constraint*> contraintes):problem(contraintes){
+
 	parser(chaine);
+    isMaster=false;
 }
 
 void BacktrackingNonRec::parser(std::string chaine){
@@ -49,7 +52,6 @@ void BacktrackingNonRec::parser(std::string chaine){
 		
 		}
 	}
-
 }
 
 string BacktrackingNonRec::toString(){
@@ -63,8 +65,10 @@ string BacktrackingNonRec::toString(){
 			set<int> domain = n.getDomains().at(i);
 			for (std::set<int>::iterator it = domain.begin(); it != domain.end(); it++){
 				int num = *it;
-				char n[3];		
-				chaine+=sprintf(n, "%d", num);+",";
+				string snum;	
+				ostringstream convert;
+				convert<<num;
+				chaine+= convert.str() + ",";
 			}
 			chaine+="}";
 		}
@@ -75,7 +79,6 @@ string BacktrackingNonRec::toString(){
 		noeuds.erase(temp);
 
 	}
-
 	return chaine;
 }
 
@@ -87,40 +90,29 @@ int BacktrackingNonRec::solve(){
 
 		string donnees="";
 		if(noeuds.size()>2){
-
-			donnees = toString();
-
 			/*RESEAUX*/
-			VERBOSE("queen","before myNetworkCreateSocket");
-			int socket = myNetworkCreateSocket();
-            VERBOSE("queen","after myNetworkCreateSocket before myNetworkOpenSocketConnexion");
-			myNetworkOpenSocketConnexion(socket);
-			VERBOSE("queen","after myNetworkOpenSocketConnexion before myNetworkReserveClient");
-			char* id_client = myNetworkReserveClient(socket, id_master);
-			VERBOSE("queen","after myNetworkReserveClient before myNetworkCloseSocketConnexion");
-			myNetworkCloseSocketConnexion(socket);
-			VERBOSE("queen","after myNetworkCloseSocketConnexion");
-			if(id_client != 0){
-				char* cha = new char[donnees.length()+1];
-				strcpy(cha, donnees.c_str());
-				VERBOSE("queen","before myNetworkCreateSocket");
-                socket = myNetworkCreateSocket();
-                VERBOSE("queen","after myNetworkCreateSocket before myNetworkOpenSocketConnexion");
-			    myNetworkOpenSocketConnexion(socket);
-			    VERBOSE("queen","after myNetworkOpenSocketConnexion before myNetworkAskClient");
-				bool ok = myNetworkAskClient(socket, id_master, id_client, cha);
-			    VERBOSE("queen","after myNetworkAskClient before myNetworkCloseSocketConnexion");
-			    myNetworkCloseSocketConnexion(socket);
-			    VERBOSE("queen","after myNetworkCloseSocketConnexion");
-			}
+			if(isMaster){
 
+			    int socket = myNetworkCreateSocket();
+			    myNetworkOpenSocketConnexion(socket);
+			    char* id_client = myNetworkReserveClient(socket, id_master);
+			    myNetworkCloseSocketConnexion(socket);
+			    if(id_client != 0){
+			    	donnees = toString();
+				    char* cha = new char[donnees.length()+1];
+				    strcpy(cha, donnees.c_str());
+                    socket = myNetworkCreateSocket();
+			        myNetworkOpenSocketConnexion(socket);
+				    bool ok = myNetworkAskClient(socket, id_master, id_client, cha);
+			        myNetworkCloseSocketConnexion(socket);
+
+			    }
+            }
 			/*FRESEAUX*/
 		}
-
 		std::list<Noeud>::iterator list_iter = noeuds.begin();
 
 		while(list_iter != noeuds.end()){
-
 			std::list<Noeud>::iterator temp = list_iter;
 
 			list_iter++;
@@ -140,16 +132,17 @@ int BacktrackingNonRec::solve(){
 		}
 	cpt++;
 	}
-
 	/*RESEAUX*/
 	sleep(10);
+	if(isMaster){
 	int socket = myNetworkCreateSocket();
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
 	myNetworkCloseSocketConnexion(socket);
+
 	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
-		std::cout<<"atoi     "<<getString(temp, 2)<<std::endl;
-		//nb_so+=atoi(getString(temp, 2));
+
+		nb_so+=atoi(getString(temp, 2));
 
 		socket = myNetworkCreateSocket();
 		myNetworkOpenSocketConnexion(socket);
@@ -160,7 +153,7 @@ int BacktrackingNonRec::solve(){
 	myNetworkOpenSocketConnexion(socket);
 	myNetworkDisconnectClient(socket, id_master);
 	/*FRESEAUX*/
-
+}
 	return nb_so;
 }
 

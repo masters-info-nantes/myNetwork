@@ -85,7 +85,7 @@ void myNetworkStartDaemon(char* programPath) {
 		//
 		myNetworkCloseSocketConnexion(socket_descriptor);
 		//
-		printf("%d && %d,   %s\n", req != 0, !sameString(getString(req,0),"NOTHING",7), toCharRequest(req));
+
 		if(req != 0 && !sameString(getString(req,0),"NOTHING",7)) {
 			char targetClient[11];
 			char* line1 = getString(req,0);
@@ -217,7 +217,7 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 	//    bool endOfRequest = false;
 
 	while((longueur = read(socket_descriptor, buffer, sizeof(buffer))) > 0) {
-		printf("longueur:  %d   \n", longueur);
+
 		VERBOSE("myNetworkRead","start read buffer >%s<(%d)",buffer,longueur);
 		if(longueur < 256)
 			buffer[longueur] = '\0';
@@ -278,7 +278,6 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 		}
 		VERBOSE("myNetworkRead","received : >%s<(%d)",buffer,longueur);
 	}
-	printf("longueur:  %d   %d\n", longueur, socket_descriptor);
 	return request;
 }
 

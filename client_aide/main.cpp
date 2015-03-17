@@ -10,7 +10,7 @@
 #include "Nqueen_diago.hpp"
 #include "Solv.hpp"
 #include "../clientlib/libmynetwork.h"
-
+#include "../clientlib/colorlog.h"
 #define MODE_NORMAL 0
 #define MODE_DAEMON 1
 #define MODE_INPUT_FILE 2
@@ -49,10 +49,8 @@ int main(int argc, char *argv[]){
 	}
 
 	std::vector<Constraint*> contraintes;
-	Nqueen_colonne contrainte_colonne;
-	Nqueen_diago contrainte_diago;
-	contraintes.push_back(&contrainte_colonne);
-	contraintes.push_back(&contrainte_diago);
+	contraintes.push_back(new Nqueen_colonne);
+	contraintes.push_back(new Nqueen_diago);
 
 	int nb_sol;
 	myNetworkSetPort(port);
