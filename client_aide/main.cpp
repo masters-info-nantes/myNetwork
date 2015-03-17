@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 	myNetworkSetPort(port);
 	myNetworkSetHost(host);
 	if(mode == MODE_DAEMON){
-		myNetworkStartDaemon("./solve -i");
+		myNetworkStartDaemon("./solver -i");
 	}
 	else if(mode == MODE_INPUT_FILE){
 		BacktrackingNonRec b(file, contraintes);

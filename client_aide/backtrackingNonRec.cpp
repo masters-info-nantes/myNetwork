@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include "../clientlib/colorlog.h"
 using namespace std;
 
 BacktrackingNonRec::BacktrackingNonRec(int x, std::vector<Constraint*> contraintes):problem(x,contraintes){
@@ -90,18 +91,27 @@ int BacktrackingNonRec::solve(){
 			donnees = toString();
 
 			/*RESEAUX*/
+			VERBOSE("queen","before myNetworkCreateSocket");
 			int socket = myNetworkCreateSocket();
-
+            VERBOSE("queen","after myNetworkCreateSocket before myNetworkOpenSocketConnexion");
 			myNetworkOpenSocketConnexion(socket);
+			VERBOSE("queen","after myNetworkOpenSocketConnexion before myNetworkReserveClient");
 			char* id_client = myNetworkReserveClient(socket, id_master);
-			myNetworkCloseSocketConnexion(socket);	
+			VERBOSE("queen","after myNetworkReserveClient before myNetworkCloseSocketConnexion");
+			myNetworkCloseSocketConnexion(socket);
+			VERBOSE("queen","after myNetworkCloseSocketConnexion");
 			if(id_client != 0){
 				char* cha = new char[donnees.length()+1];
 				strcpy(cha, donnees.c_str());
-socket = myNetworkCreateSocket();
-			myNetworkOpenSocketConnexion(socket);
+				VERBOSE("queen","before myNetworkCreateSocket");
+                socket = myNetworkCreateSocket();
+                VERBOSE("queen","after myNetworkCreateSocket before myNetworkOpenSocketConnexion");
+			    myNetworkOpenSocketConnexion(socket);
+			    VERBOSE("queen","after myNetworkOpenSocketConnexion before myNetworkAskClient");
 				bool ok = myNetworkAskClient(socket, id_master, id_client, cha);
-			myNetworkCloseSocketConnexion(socket);
+			    VERBOSE("queen","after myNetworkAskClient before myNetworkCloseSocketConnexion");
+			    myNetworkCloseSocketConnexion(socket);
+			    VERBOSE("queen","after myNetworkCloseSocketConnexion");
 			}
 
 			/*FRESEAUX*/
@@ -137,9 +147,8 @@ socket = myNetworkCreateSocket();
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
 	myNetworkCloseSocketConnexion(socket);
-	std::cout<<temp<<"    "<<getString(temp, 0)<<std::endl;
 	while(temp != 0 && strncmp(getString(temp, 0), "NOTHING", 7) != 0){
-		//std::cout<<"atoi     "<<getString(temp, 0)<<"  g  "<<getString(temp, 1)<<"  g  "<<<getString(temp, 2)<<std::endl;
+		std::cout<<"atoi     "<<getString(temp, 2)<<std::endl;
 		//nb_so+=atoi(getString(temp, 2));
 
 		socket = myNetworkCreateSocket();

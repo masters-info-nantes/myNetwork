@@ -20,7 +20,7 @@ char* processRequest(LinkedListString* request) {
 		INFO("CONSUMER",">%s<(%d)",tmp,(int)strlen(tmp));
 	}
 	INFO("CONSUMER","end read request");
-	char* response = "KO unknown error";// TODO remove test default response
+	char* response = "KO unknown error\n";// TODO remove test default response
 	char* line = getString(request,0);
 	if(sameString(line,"CLIENT",6)) {
 		if(line[6] == '\n' || line[6] == '\0') {// new client connection
@@ -43,14 +43,14 @@ char* processRequest(LinkedListString* request) {
 					INFO("CONSUMER.processRequest","client deconnection");
 					response = clientDisconnection(line+(7*sizeof(char)));
 				} else {
-					return "KO parsing error (off request)";
+					return "KO parsing error (off request)\n";
 				}
 			} else if(sameString(line2,"WAITING",7)) {
 				if(line2[7] == '\n' || line2[7] == '\0') {
 					INFO("CONSUMER.processRequest","client request for waiting request");
 					response = waitingRequest(line+(7*sizeof(char)));
 				} else {
-					return "KO parsing error (waiting request)";
+					return "KO parsing error (waiting request)\n";
 				}
 			} else {
 				ALERT("CONSUMER.processRequest","error line 2 >%s<",line2);
@@ -167,7 +167,7 @@ char* clientDisconnection(char* clientId) {
 char* waitingRequest(char* clientId) {
 	int clientPos = getClientIndex(listClient,clientId);
 	if(clientPos < 0)
-		return "KO unrecognize client id";
+		return "KO unrecognize client id\n";
 	Client* client = getClient(listClient,clientPos);
 	LinkedListString* waitReq = dequeueRequest(client->waiting);
 	if(waitReq == 0) {
@@ -182,25 +182,25 @@ char* reserveClient(char* masterId) {
 	if(masterPos >= 0) {
 		Client* reservedClient = reserveClientFromListClient(listClient,getClient(listClient,masterPos));
 		if(reservedClient != 0) {
-			return concat("OK ",reservedClient->id);
+			return concat(concat("OK ",reservedClient->id),"\n");
 		} else {
-			return "KO no client available";
+			return "KO no client available\n";
 		}
 	}
-	return "KO unrecognize master id";
+	return "KO unrecognize master id\n";
 }
 
 char* assignTaskToClient(char* masterId, char* targetClientId, char* data) {
 	int masterPos = getClientIndex(listClient,masterId);
 	if(masterPos < 0)
-		return "KO unrecognize master id";
+		return "KO unrecognize master id\n";
 	int clientPos = getClientIndex(listClient,targetClientId);
 	if(clientPos < 0)
-		return "KO unrecognize client id";
+		return "KO unrecognize client id\n";
 	Client* master = getClient(listClient,masterPos);
 	Client* client = getClient(listClient,clientPos);
 	if(client->usedBy != master) {
-		return "KO bad master";
+		return "KO bad master\n";
 	}
 	LinkedListString* req = makeLinkedListString();
 	addString(req,concat("MASTER ",master->id));
@@ -208,21 +208,21 @@ char* assignTaskToClient(char* masterId, char* targetClientId, char* data) {
 	addString(req,data);
 	enqueueRequest(client->waiting,req);
 	setClientState(client,WORKING);
-	return concat("OK ",client->id);
+	return concat(concat("OK ",client->id),"\n");
 }
 
 char* responseForTask(char* masterId, char* clientId, char* data) {
 	SUCCESS("responseForTask","start");
 	int masterPos = getClientIndex(listClient,masterId);
 	if(masterPos < 0)
-		return "KO unrecognize master id";
+		return "KO unrecognize master id\n";
 	int clientPos = getClientIndex(listClient,clientId);
 	if(clientPos < 0)
-		return "KO unrecognize client id";
+		return "KO unrecognize client id\n";
 	Client* master = getClient(listClient,masterPos);
 	Client* client = getClient(listClient,clientPos);
 	if(client->usedBy != master) {
-		return "KO bad master";
+		return "KO bad master\n";
 	}
 	LinkedListString* req = makeLinkedListString();
 	addString(req,concat("MASTER ",master->id));
@@ -231,5 +231,5 @@ char* responseForTask(char* masterId, char* clientId, char* data) {
 	enqueueRequest(master->waiting,req);
 	SUCCESS("responseForTask","client FREE");
 	setClientState(client,FREE);
-	return concat("OK ",master->id);
+	return concat(concat("OK ",master->id),"\n");
 }

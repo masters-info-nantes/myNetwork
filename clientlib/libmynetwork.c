@@ -96,11 +96,13 @@ void myNetworkStartDaemon(char* programPath) {
 			VERBOSE("DAEMON","target client >%s<(%d)",targetClient,strlen(targetClient));
 			char* tmpFileName = "tmp.txt";
 			FILE* tmpFile = fopen(tmpFileName,"w+");
-			for(int i=0;i<getSize(req);i++) {
-				fprintf(tmpFile,"%s",getString(req,i));
+			for(int i=2;i<getSize(req);i++) {// TODO clean this, if less than 2 lines ?
+				fprintf(tmpFile,"%s\n",getString(req,i));
 			}
 			fclose(tmpFile);
-			char* progRet = "je suis la sortie de mon programme";
+			//char* progRet = "je suis la sortie de mon programme";
+			VERBOSE("DAEMON","prog will be launch");
+			char* progRet = runExternalProgram(concat(concat(programPath," "),tmpFileName));
 			VERBOSE("DAEMON","prog ret >%s<",progRet);
 			socket_descriptor = myNetworkCreateSocket();
 			myNetworkOpenSocketConnexion(socket_descriptor);
@@ -208,17 +210,20 @@ bool myNetworkWrite(int socket_descriptor, LinkedListString* msg) {
 LinkedListString* myNetworkRead(int socket_descriptor) {
 	// TODO cut buffer
 	char buffer[256];
+	char cut[256];
 	int longueur;
 	LinkedListString* request = makeLinkedListString();
 	bool concatNext = false;
+	//    bool endOfRequest = false;
 
 	while((longueur = read(socket_descriptor, buffer, sizeof(buffer))) > 0) {
 		printf("longueur:  %d   \n", longueur);
+		VERBOSE("myNetworkRead","start read buffer >%s<(%d)",buffer,longueur);
 		if(longueur < 256)
 			buffer[longueur] = '\0';
 		if(longueur == 1 && buffer[0] == '\n')
 			break;
-		if(longueur > 1) {
+		/*if(longueur > 1) {
 			if(longueur == 256) {
 				if(concatNext) {
 					concatLastString(request,buffer);
@@ -234,7 +239,44 @@ LinkedListString* myNetworkRead(int socket_descriptor) {
 				}
 				concatNext = false;
 			}
+		}*/
+		if(longueur > 1) {
+			int cuti = 0;
+			for(int i=0;i<longueur;i++) {
+				if(buffer[i] == '\n') {
+					if(buffer[i-1] == '\n') {
+						//endOfRequest = true;
+						break;
+					}
+					cut[cuti] = '\0';
+					if(longueur == 256) {
+						if(concatNext) {
+							concatLastString(request,cut);
+							VERBOSE("myNetworkRead.CUT","concatLastString(_,>%s<) cuti(%d)",cut,cuti);
+						} else {
+							addString(request,cut);
+							VERBOSE("myNetworkRead.CUR","addString(_,>%s<) cuti(%d)",cut,cuti);
+						}
+						concatNext = true;
+					} else {
+						if(concatNext) {
+							concatLastString(request,cut);
+							VERBOSE("myNetworkRead.CUT","concatLastString(_,>%s<) cuti(%d)",cut,cuti);
+						} else {
+							addString(request,cut);
+							VERBOSE("myNetworkRead.CUT","addString(_,>%s<) cuti(%d)",cut,cuti);
+						}
+						concatNext = false;
+					}
+					cuti = 0;
+				} else {
+					cut[cuti] = buffer[i];
+					cuti++;
+				}
+			}
+			VERBOSE("myNetworkRead","end cut (%d)",longueur);
 		}
+		VERBOSE("myNetworkRead","received : >%s<(%d)",buffer,longueur);
 	}
 	printf("longueur:  %d   %d\n", longueur, socket_descriptor);
 	return request;
@@ -314,6 +356,8 @@ char* myNetworkReserveClient(int socket_descriptor, char* clientId) {
 	LinkedListString* res;
 	if(myNetworkWrite(socket_descriptor,msg)) {
 		res = myNetworkRead(socket_descriptor);
+		VERBOSE("myNetworkReserveClient","res ((%p)) (%d)",res,res);
+		VERBOSE("myNetworkReserveClient","res size (%d)",getSize(res));
 		char* line1 = getString(res,0);
 
 		if(line1[0] == 'O' && line1[1] == 'K') {
