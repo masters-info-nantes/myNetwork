@@ -94,7 +94,7 @@ void myNetworkStartDaemon(char* programPath) {
 			}
 			targetClient[11] = '\0';
 			VERBOSE("DAEMON","target client >%s<(%d)",targetClient,strlen(targetClient));
-			char* tmpFileName = "tmp.txt";
+			char* tmpFileName = "/tmp/tmp.txt";
 			FILE* tmpFile = fopen(tmpFileName,"w+");
 			for(int i=2;i<getSize(req);i++) {// TODO clean this, if less than 2 lines ?
 				fprintf(tmpFile,"%s\n",getString(req,i));

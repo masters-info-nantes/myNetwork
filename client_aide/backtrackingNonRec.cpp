@@ -135,6 +135,7 @@ int BacktrackingNonRec::solve(){
 	/*RESEAUX*/
 	sleep(10);
 	if(isMaster){
+	sleep(30);
 	int socket = myNetworkCreateSocket();
 	myNetworkOpenSocketConnexion(socket);
 	LinkedListString* temp = myNetworkWaitingRequest(socket, id_master);
